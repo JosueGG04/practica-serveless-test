@@ -22,7 +22,8 @@ function App() {
             // Example filter payload - adjust based on your FilterBookingList requirements
             const filterPayload = {
                 // Add filter properties as needed
-                status: "ACTIVE"
+                startDate: "",
+                endDate: "",
             };
 
             const response = await fetch(API_URL, {
@@ -30,9 +31,9 @@ function App() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(filterPayload)  // For GET requests with body
+                // body: JSON.stringify(filterPayload)  // For GET requests with body
             });
-
+            console.log(response);
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
@@ -91,7 +92,7 @@ function App() {
                         <thead>
                         <tr className="bg-gray-100">
                             <th className="py-2 px-4 border-b border-gray-200 text-left">ID</th>
-                            <th className="py-2 px-4 border-b border-gray-200 text-left">Customer</th>
+                            <th className="py-2 px-4 border-b border-gray-200 text-left">Name</th>
                             <th className="py-2 px-4 border-b border-gray-200 text-left">Date</th>
                             <th className="py-2 px-4 border-b border-gray-200 text-left">Status</th>
                         </tr>
@@ -100,9 +101,9 @@ function App() {
                         {bookings.map((booking, index) => (
                             <tr key={booking.id || index} className="hover:bg-gray-50">
                                 <td className="py-2 px-4 border-b border-gray-200">{booking.id}</td>
-                                <td className="py-2 px-4 border-b border-gray-200">{booking.customerName}</td>
+                                <td className="py-2 px-4 border-b border-gray-200">{booking.name}</td>
                                 <td className="py-2 px-4 border-b border-gray-200">
-                                    {new Date(booking.bookingDate).toLocaleDateString()}
+                                    {new Date(booking.date).toLocaleDateString()}
                                 </td>
                                 <td className="py-2 px-4 border-b border-gray-200">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
