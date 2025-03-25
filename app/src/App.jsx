@@ -1,15 +1,28 @@
-import { useState, useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import reactLogo from './assets/react.svg';
+import viteLogo from '/vite.svg';
+import './App.css';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Button,
+    Chip,
+    CircularProgress,
+    Alert,
+    Box,
+} from '@mui/material';
 
 function App() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // API endpoint URL - replace with your actual API Gateway URL
-    const API_URL = "https://your-api-gateway-url.execute-api.your-region.amazonaws.com/prod/bookings";
+    const API_URL = "https://bk27glct06.execute-api.us-east-1.amazonaws.com/default/booking";
 
     useEffect(() => {
         fetchBookings();
@@ -18,10 +31,7 @@ function App() {
     const fetchBookings = async () => {
         try {
             setLoading(true);
-
-            // Example filter payload - adjust based on your FilterBookingList requirements
             const filterPayload = {
-                // Add filter properties as needed
                 startDate: "",
                 endDate: "",
             };
@@ -31,23 +41,18 @@ function App() {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                // body: JSON.stringify(filterPayload)  // For GET requests with body
             });
-            console.log(response);
+
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log("API Response:", data);
-
-            // Assuming data structure has a 'data' property containing bookings array
             if (data && data.data) {
                 setBookings(data.data.bookings || []);
             } else {
                 setBookings([]);
             }
-
         } catch (err) {
             console.error("Error fetching bookings:", err);
             setError(err.message);
@@ -57,72 +62,69 @@ function App() {
     };
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Booking Management</h1>
+        <Box sx={{ p: 3, maxWidth: 900, mx: 'auto' }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+                Booking Management
+            </h1>
 
-            <button
+            <Button
+                variant="contained"
                 onClick={fetchBookings}
-                className="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                sx={{ mb: 3 }}
             >
                 Refresh Bookings
-            </button>
+            </Button>
 
             {loading && (
-                <div className="text-center p-4">
-                    <p className="text-gray-600">Loading bookings...</p>
-                </div>
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+                    <CircularProgress />
+                </Box>
             )}
 
             {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    <p>Error: {error}</p>
-                    <p className="text-sm">Please check your API configuration and try again.</p>
-                </div>
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    <div>Error: {error}</div>
+                    <div>Please check your API configuration and try again.</div>
+                </Alert>
             )}
 
             {!loading && !error && bookings.length === 0 && (
-                <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-                    <p>No bookings found.</p>
-                </div>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    No bookings found.
+                </Alert>
             )}
 
             {bookings.length > 0 && (
-                <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200">
-                        <thead>
-                        <tr className="bg-gray-100">
-                            <th className="py-2 px-4 border-b border-gray-200 text-left">ID</th>
-                            <th className="py-2 px-4 border-b border-gray-200 text-left">Name</th>
-                            <th className="py-2 px-4 border-b border-gray-200 text-left">Date</th>
-                            <th className="py-2 px-4 border-b border-gray-200 text-left">Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {bookings.map((booking, index) => (
-                            <tr key={booking.id || index} className="hover:bg-gray-50">
-                                <td className="py-2 px-4 border-b border-gray-200">{booking.id}</td>
-                                <td className="py-2 px-4 border-b border-gray-200">{booking.name}</td>
-                                <td className="py-2 px-4 border-b border-gray-200">
-                                    {new Date(booking.date).toLocaleDateString()}
-                                </td>
-                                <td className="py-2 px-4 border-b border-gray-200">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        booking.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' :
-                            booking.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                booking.status === 'CANCELLED' ? 'bg-red-100 text-red-800' :
-                                    'bg-gray-100 text-gray-800'
-                    }`}>
-                      {booking.status}
-                    </span>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
+                <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label="booking table">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Matricula</TableCell>
+                                <TableCell>Nombre</TableCell>
+                                <TableCell>Fecha</TableCell>
+                                <TableCell>Laboratorio</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {bookings.map((booking, index) => (
+                                <TableRow
+                                    key={booking.idStudent || index}
+                                    sx={{ '&:hover': { backgroundColor: 'grey.100' } }}
+                                >
+                                    <TableCell>{booking.idStudent}</TableCell>
+                                    <TableCell>{booking.name}</TableCell>
+                                    <TableCell>
+                                        {new Date(booking.date).toLocaleDateString()}
+                                    </TableCell>
+                                    <TableCell>{booking.laboratory}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
             )}
-        </div>
+        </Box>
     );
 }
 
-export default App
+export default App;
