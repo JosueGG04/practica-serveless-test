@@ -7,9 +7,17 @@ function App() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showRegisterForm, setShowRegisterForm] = useState(false);
+    const [newBooking, setNewBooking] = useState({
+        studentId: '',
+        name: '',
+        email: '',
+        date: '',
+        laboratory: ''
+    });
 
     // API endpoint URL - replace with your actual API Gateway URL
-    const API_URL = "https://your-api-gateway-url.execute-api.your-region.amazonaws.com/prod/bookings";
+    const API_URL = "https://avc4k7skn2.execute-api.us-east-1.amazonaws.com/default/booking";
 
     useEffect(() => {
         fetchBookings();
@@ -18,36 +26,23 @@ function App() {
     const fetchBookings = async () => {
         try {
             setLoading(true);
-
-            // Example filter payload - adjust based on your FilterBookingList requirements
-            const filterPayload = {
-                // Add filter properties as needed
-                startDate: "",
-                endDate: "",
-            };
-
             const response = await fetch(API_URL, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                // body: JSON.stringify(filterPayload)  // For GET requests with body
+                }
             });
-            console.log(response);
+
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log("API Response:", data);
-
-            // Assuming data structure has a 'data' property containing bookings array
             if (data && data.data) {
                 setBookings(data.data.bookings || []);
             } else {
                 setBookings([]);
             }
-
         } catch (err) {
             console.error("Error fetching bookings:", err);
             setError(err.message);
@@ -56,16 +51,125 @@ function App() {
         }
     };
 
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewBooking(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleRegisterSubmit = (e) => {
+        e.preventDefault();
+        // Aquí podrías hacer la llamada a la API para registrar el booking.
+        console.log("New Booking Data:", newBooking);
+
+        // Resetea el formulario y cierra el modal
+        setNewBooking({
+            studentId: '',
+            name: '',
+            email: '',
+            date: '',
+            laboratory: ''
+        });
+        setShowRegisterForm(false);
+    };
+
     return (
         <div className="p-6 max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold mb-6">Booking Management</h1>
+            <div className="flex mb-6">
+                <button
+                    onClick={fetchBookings}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition mr-4"
+                >
+                    Refresh Bookings
+                </button>
+                <button
+                    onClick={() => setShowRegisterForm(true)}
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                >
+                    Register Booking
+                </button>
+            </div>
 
-            <button
-                onClick={fetchBookings}
-                className="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-            >
-                Refresh Bookings
-            </button>
+            {/* Modal del formulario de Register Booking */}
+            {showRegisterForm && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h2 className="text-xl font-bold mb-4">Register Booking</h2>
+                        <form onSubmit={handleRegisterSubmit}>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">ID de estudiante</label>
+                                <input
+                                    type="text"
+                                    name="studentId"
+                                    value={newBooking.studentId}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full px-3 py-2 border rounded"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">Nombre</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={newBooking.name}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full px-3 py-2 border rounded"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">Correo</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={newBooking.email}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full px-3 py-2 border rounded"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">Fecha</label>
+                                <input
+                                    type="date"
+                                    name="date"
+                                    value={newBooking.date}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full px-3 py-2 border rounded"
+                                    required
+                                />
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">Laboratorio</label>
+                                <input
+                                    type="text"
+                                    name="laboratory"
+                                    value={newBooking.laboratory}
+                                    onChange={handleInputChange}
+                                    className="mt-1 w-full px-3 py-2 border rounded"
+                                    required
+                                />
+                            </div>
+                            <div className="flex justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowRegisterForm(false)}
+                                    className="mr-4 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                                >
+                                    Submit Booking
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {loading && (
                 <div className="text-center p-4">
@@ -125,4 +229,4 @@ function App() {
     );
 }
 
-export default App
+export default App;
