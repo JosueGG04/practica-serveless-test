@@ -41,7 +41,6 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { setHours, setMinutes } from 'date-fns';
-import axios from "axios";
 // import { es } from 'date-fns/locale'; // Para español, opcional
 
 const theme = createTheme({
@@ -320,7 +319,7 @@ function BookingForm({ apiUrl }) {
 //Componente para la lista de Bookings pasados
 function OldBookingList({ apiUrl, setApiUrl }) {
     const [bookings, setBookings] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [newApiUrl, setNewApiUrl] = useState(apiUrl);
@@ -328,21 +327,35 @@ function OldBookingList({ apiUrl, setApiUrl }) {
     const [endDate, setEndDate] = useState(null);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchBookings();
-    }, [apiUrl]);
+
+    // useEffect(() => {
+    //     fetchBookings();
+    // }, [apiUrl]);
+
+    // Función auxiliar para formatear la fecha al formato "YYYY-MM-DDTHH:mm:ss"
+    const formatDateToApi = (date) => {
+        if (!date) return null;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 porque los meses van de 0-11
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+    };
 
     const fetchBookings = async (filter = {}) => {
         try {
             setLoading(true);
-            const requestBody = filter.startDate && filter.endDate ? {
-                startDate: filter.startDate.toISOString(),
-                endDate: filter.endDate.toISOString(),
-            } : {};
+            const requestBody = {
+                startDate: formatDateToApi(filter.startDate),
+                endDate: formatDateToApi(filter.endDate),
+            }
 
-            const response = await axios({
-                url: apiUrl,
-                method: 'GET',
+            console.log(requestBody)
+
+            const response = await fetch(apiUrl,{
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody),
             });
@@ -492,7 +505,7 @@ function OldBookingList({ apiUrl, setApiUrl }) {
 // Componente principal App
 function App() {
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [apiUrl, setApiUrl] = useState("https://0gcdaz8460.execute-api.us-east-1.amazonaws.com/default/booking");
+    const [apiUrl, setApiUrl] = useState("https://xhiuh7zop8.execute-api.us-east-1.amazonaws.com/default/booking");
 
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
