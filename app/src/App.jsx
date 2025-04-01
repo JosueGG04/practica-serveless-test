@@ -505,7 +505,7 @@ function OldBookingList({ apiUrl, setApiUrl }) {
 // Componente principal App
 function App() {
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [apiUrl, setApiUrl] = useState("https://xhiuh7zop8.execute-api.us-east-1.amazonaws.com/default/booking");
+    const [apiUrl, setApiUrl] = useState("https://a2uh23li58.execute-api.us-east-1.amazonaws.com/default/booking");
 
     const toggleDrawer = (open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) return;
